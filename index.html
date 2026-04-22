@@ -498,6 +498,19 @@ loader.load('riot-logo.svg', function(data){
     my=(e.clientY/window.innerHeight-.5)*2;
   });
 
+  // Easter egg: 5 fast clicks on the 3D logo → game
+  let clickCount=0, clickTimer=null;
+  renderer.domElement.style.cursor='pointer';
+  renderer.domElement.addEventListener('click', ()=>{
+    clickCount++;
+    if(clickTimer) clearTimeout(clickTimer);
+    if(clickCount>=5){
+      clickCount=0;
+      window.location.href='game/';
+    }
+    clickTimer=setTimeout(()=>{clickCount=0;},1500);
+  });
+
   // Animate
   let t=0;
   function animate(){
