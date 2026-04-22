@@ -40,6 +40,7 @@ nav{
   position:relative;
   overflow:hidden;
   display:flex;
+  flex-direction:column;
   align-items:center;
   min-height:100vh;
 }
@@ -49,16 +50,17 @@ nav{
 }
 .hero-inner{
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:space-between;
+  text-align:center;
   width:100%;
   max-width:1200px;
   margin:0 auto;
-  padding:120px 48px 80px;
+  padding:80px 48px 60px;
   position:relative;
   z-index:2;
 }
-.hero-content{max-width:520px;}
+.hero-content{max-width:640px;}
 .hero h1{
   font-size:clamp(36px,5vw,52px);
   font-weight:800;
@@ -97,9 +99,11 @@ nav{
 
 /* 3D LOGO CONTAINER */
 #logo3d{
-  width:400px;
-  height:400px;
+  width:600px;
+  height:500px;
   flex-shrink:0;
+  order:-1;
+  margin-bottom:20px;
 }
 
 /* HEADLINE SECTION */
@@ -270,9 +274,9 @@ footer{
 
 /* RESPONSIVE */
 @media(max-width:900px){
-  .hero-inner{flex-direction:column-reverse;text-align:center;padding-top:80px;}
+  .hero-inner{padding-top:60px;}
   .hero-content{max-width:100%;}
-  #logo3d{width:280px;height:280px;margin-bottom:20px;}
+  #logo3d{width:320px;height:300px;}
   .hero-badges{justify-content:center;}
 }
 @media(max-width:768px){
@@ -402,7 +406,7 @@ const h = container.clientHeight || 400;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
-camera.position.z = 4.5;
+camera.position.z = 3.8;
 
 const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
 renderer.setSize(w, h);
@@ -498,9 +502,9 @@ loader.load('riot-logo.svg', function(data){
   let t=0;
   function animate(){
     requestAnimationFrame(animate);
-    t+=0.008;
+    t+=0.014;
 
-    pivot.rotation.y += (mx*0.4 + t*0.3 - pivot.rotation.y)*0.015;
+    pivot.rotation.y += (mx*0.4 + t*0.4 - pivot.rotation.y)*0.018;
     pivot.rotation.x += (my*0.15 + Math.sin(t*0.5)*0.05 - pivot.rotation.x)*0.015;
     pivot.position.y = Math.sin(t*0.7)*0.06;
 
