@@ -36,17 +36,31 @@ nav{
 .hero{
   background:var(--blue);
   color:var(--white);
-  padding:140px 48px 80px;
+  padding:0;
   position:relative;
   overflow:hidden;
+  display:flex;
+  align-items:center;
+  min-height:100vh;
 }
-.hero::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:120px;
-  background:linear-gradient(to top,rgba(25,25,230,.95),transparent);
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 50%, rgba(45,45,255,.6) 0%, rgba(25,25,230,1) 60%);
 }
-.hero-content{max-width:700px;position:relative;z-index:2;}
+.hero-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:120px 48px 80px;
+  position:relative;
+  z-index:2;
+}
+.hero-content{max-width:520px;}
 .hero h1{
-  font-size:clamp(36px,5vw,56px);
+  font-size:clamp(36px,5vw,52px);
   font-weight:800;
   line-height:1.08;
   letter-spacing:-.03em;
@@ -57,7 +71,6 @@ nav{
   line-height:1.6;
   color:rgba(255,255,255,.8);
   margin-bottom:32px;
-  max-width:540px;
 }
 .hero-cta{
   display:inline-block;
@@ -80,6 +93,13 @@ nav{
   padding:6px 14px;
   border:1px solid rgba(255,255,255,.2);
   border-radius:20px;
+}
+
+/* 3D LOGO CONTAINER */
+#logo3d{
+  width:400px;
+  height:400px;
+  flex-shrink:0;
 }
 
 /* HEADLINE SECTION */
@@ -155,7 +175,7 @@ nav{
 }
 .co-card a:hover{color:var(--blue-dark);}
 
-/* SCROLLING TEXT */
+/* CAPABILITIES */
 .capabilities{
   padding:60px 48px 80px;
   text-align:center;
@@ -249,10 +269,17 @@ footer{
 .footer-text{font-size:13px;color:var(--gray-400);}
 
 /* RESPONSIVE */
+@media(max-width:900px){
+  .hero-inner{flex-direction:column-reverse;text-align:center;padding-top:80px;}
+  .hero-content{max-width:100%;}
+  #logo3d{width:280px;height:280px;margin-bottom:20px;}
+  .hero-badges{justify-content:center;}
+}
 @media(max-width:768px){
-  nav,.hero,.headline-section,.companies-section,.capabilities,.stats-section,.cta-section,footer{
+  nav,.headline-section,.companies-section,.capabilities,.stats-section,.cta-section,footer{
     padding-left:20px;padding-right:20px;
   }
+  .hero-inner{padding-left:20px;padding-right:20px;}
   .companies-grid{grid-template-columns:1fr;}
   .stats-grid{grid-template-columns:repeat(2,1fr);}
   .nav-links{display:none;}
@@ -273,15 +300,19 @@ footer{
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-content">
-    <h1>Innovation built in Louisiana.</h1>
-    <p>Riot Laboratories is the parent organization behind a portfolio of technology-driven companies in aerial intelligence, design &amp; fabrication, and agricultural innovation.</p>
-    <a class="hero-cta" href="#companies">Explore Our Companies</a>
-    <div class="hero-badges">
-      <span class="hero-badge">Lafayette, LA</span>
-      <span class="hero-badge">105 Dorset Avenue</span>
-      <span class="hero-badge">Est. 2020</span>
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <h1>Innovation built in Louisiana.</h1>
+      <p>Riot Laboratories is the parent organization behind a portfolio of technology-driven companies in aerial intelligence, design &amp; fabrication, and agricultural innovation.</p>
+      <a class="hero-cta" href="#companies">Explore Our Companies</a>
+      <div class="hero-badges">
+        <span class="hero-badge">Lafayette, LA</span>
+        <span class="hero-badge">105 Dorset Avenue</span>
+        <span class="hero-badge">Est. 2020</span>
+      </div>
     </div>
+    <div id="logo3d"></div>
   </div>
 </div>
 
@@ -356,6 +387,157 @@ footer{
   <div class="footer-logo"><img src="riot-logo.jpg" alt="Riot Laboratories"></div>
   <div class="footer-text">Riot Laboratories, LLC · 105 Dorset Avenue · Lafayette, Louisiana · © 2026</div>
 </footer>
+
+<!-- THREE.JS 3D LOGO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const container = document.getElementById('logo3d');
+  const w = container.clientWidth || 400;
+  const h = container.clientHeight || 400;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+  camera.position.z = 3.2;
+
+  const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+
+  // Lighting
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambient);
+
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
+  key.position.set(3, 4, 5);
+  scene.add(key);
+
+  const rim = new THREE.DirectionalLight(0x4444ff, 0.8);
+  rim.position.set(-3, 2, -3);
+  scene.add(rim);
+
+  const fill = new THREE.PointLight(0x2d2dff, 0.5, 10);
+  fill.position.set(0, -2, 3);
+  scene.add(fill);
+
+  // Logo texture on 3D box with rounded edges
+  const loader = new THREE.TextureLoader();
+  loader.load('riot-logo.jpg', function(texture){
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // Create materials — logo on front and back, metallic blue sides
+    const logoMat = new THREE.MeshStandardMaterial({
+      map: texture,
+      metalness: 0.3,
+      roughness: 0.4,
+    });
+    const sideMat = new THREE.MeshStandardMaterial({
+      color: 0x1a1aee,
+      metalness: 0.7,
+      roughness: 0.2,
+    });
+    const edgeMat = new THREE.MeshStandardMaterial({
+      color: 0x2a2aff,
+      metalness: 0.8,
+      roughness: 0.15,
+    });
+
+    // Main logo panel (slightly extruded box)
+    const geo = new THREE.BoxGeometry(1.8, 1.8, 0.15, 1, 1, 1);
+    const materials = [
+      sideMat, // right
+      sideMat, // left
+      edgeMat, // top
+      edgeMat, // bottom
+      logoMat, // front
+      logoMat, // back
+    ];
+    const mesh = new THREE.Mesh(geo, materials);
+
+    // Glow ring behind logo
+    const ringGeo = new THREE.TorusGeometry(1.2, 0.02, 16, 64);
+    const ringMat = new THREE.MeshBasicMaterial({color:0x4466ff, transparent:true, opacity:0.4});
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.z = -0.15;
+
+    // Outer glow ring
+    const ring2Geo = new THREE.TorusGeometry(1.35, 0.01, 16, 64);
+    const ring2Mat = new THREE.MeshBasicMaterial({color:0x4466ff, transparent:true, opacity:0.2});
+    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+    ring2.position.z = -0.2;
+
+    // Particle field
+    const particleCount = 80;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for(let i = 0; i < particleCount; i++){
+      positions[i*3] = (Math.random() - 0.5) * 4;
+      positions[i*3+1] = (Math.random() - 0.5) * 4;
+      positions[i*3+2] = (Math.random() - 0.5) * 2 - 0.5;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({color:0x6688ff, size:0.02, transparent:true, opacity:0.5});
+    const particles = new THREE.Points(particleGeo, particleMat);
+
+    const group = new THREE.Group();
+    group.add(mesh);
+    group.add(ring);
+    group.add(ring2);
+    group.add(particles);
+    scene.add(group);
+
+    // Mouse interaction
+    let mouseX = 0, mouseY = 0;
+    let targetRotX = 0, targetRotY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    // Animation
+    let time = 0;
+    function animate(){
+      requestAnimationFrame(animate);
+      time += 0.01;
+
+      // Gentle continuous spin + mouse follow
+      targetRotY = mouseX * 0.3 + time * 0.3;
+      targetRotX = mouseY * 0.15 + Math.sin(time * 0.5) * 0.05;
+
+      group.rotation.y += (targetRotY - group.rotation.y) * 0.02;
+      group.rotation.x += (targetRotX - group.rotation.x) * 0.02;
+
+      // Float effect
+      group.position.y = Math.sin(time * 0.8) * 0.05;
+
+      // Rings counter-rotate
+      ring.rotation.z = -time * 0.5;
+      ring2.rotation.z = time * 0.3;
+
+      // Particles drift
+      const pos = particles.geometry.attributes.position;
+      for(let i = 0; i < particleCount; i++){
+        pos.array[i*3+1] += Math.sin(time + i) * 0.001;
+      }
+      pos.needsUpdate = true;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize
+    window.addEventListener('resize', () => {
+      const nw = container.clientWidth;
+      const nh = container.clientHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
