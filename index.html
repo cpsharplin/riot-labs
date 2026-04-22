@@ -389,154 +389,136 @@ footer{
 </footer>
 
 <!-- THREE.JS 3D LOGO -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-(function(){
-  const container = document.getElementById('logo3d');
-  const w = container.clientWidth || 400;
-  const h = container.clientHeight || 400;
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
-  camera.position.z = 3.2;
+const container = document.getElementById('logo3d');
+const w = container.clientWidth || 400;
+const h = container.clientHeight || 400;
 
-  const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
-  renderer.setSize(w, h);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
-  container.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+camera.position.z = 4.5;
 
-  // Lighting
-  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambient);
+const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+renderer.setSize(w, h);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+container.appendChild(renderer.domElement);
 
-  const key = new THREE.DirectionalLight(0xffffff, 1.2);
-  key.position.set(3, 4, 5);
-  scene.add(key);
+// Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const key = new THREE.DirectionalLight(0xffffff, 1.5);
+key.position.set(3, 4, 5);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xffffff, 0.8);
+rim.position.set(-3, 2, -3);
+scene.add(rim);
+const bottom = new THREE.PointLight(0xffffff, 0.4, 10);
+bottom.position.set(0, -3, 2);
+scene.add(bottom);
 
-  const rim = new THREE.DirectionalLight(0xffffff, 0.6);
-  rim.position.set(-3, 2, -3);
-  scene.add(rim);
+// Load SVG and extrude to 3D
+const loader = new SVGLoader();
+loader.load('riot-logo.svg', function(data){
+  const group = new THREE.Group();
 
-  const fill = new THREE.PointLight(0xffffff, 0.3, 10);
-  fill.position.set(0, -2, 3);
-  scene.add(fill);
-
-  // Logo texture on 3D box with rounded edges
-  const loader = new THREE.TextureLoader();
-  loader.load('riot-logo.jpg', function(texture){
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-    // Create materials — logo on front and back, metallic blue sides
-    const logoMat = new THREE.MeshStandardMaterial({
-      map: texture,
-      metalness: 0.3,
-      roughness: 0.4,
-    });
-    const sideMat = new THREE.MeshStandardMaterial({
-      color: 0x222222,
-      metalness: 0.7,
-      roughness: 0.2,
-    });
-    const edgeMat = new THREE.MeshStandardMaterial({
-      color: 0x333333,
-      metalness: 0.8,
-      roughness: 0.15,
-    });
-
-    // Main logo panel (slightly extruded box)
-    const geo = new THREE.BoxGeometry(1.8, 1.8, 0.15, 1, 1, 1);
-    const materials = [
-      sideMat, // right
-      sideMat, // left
-      edgeMat, // top
-      edgeMat, // bottom
-      logoMat, // front
-      logoMat, // back
-    ];
-    const mesh = new THREE.Mesh(geo, materials);
-
-    // Glow ring behind logo
-    const ringGeo = new THREE.TorusGeometry(1.2, 0.02, 16, 64);
-    const ringMat = new THREE.MeshBasicMaterial({color:0x888888, transparent:true, opacity:0.4});
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.z = -0.15;
-
-    // Outer glow ring
-    const ring2Geo = new THREE.TorusGeometry(1.35, 0.01, 16, 64);
-    const ring2Mat = new THREE.MeshBasicMaterial({color:0x888888, transparent:true, opacity:0.2});
-    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
-    ring2.position.z = -0.2;
-
-    // Particle field
-    const particleCount = 80;
-    const particleGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    for(let i = 0; i < particleCount; i++){
-      positions[i*3] = (Math.random() - 0.5) * 4;
-      positions[i*3+1] = (Math.random() - 0.5) * 4;
-      positions[i*3+2] = (Math.random() - 0.5) * 2 - 0.5;
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particleMat = new THREE.PointsMaterial({color:0xaaaaaa, size:0.02, transparent:true, opacity:0.5});
-    const particles = new THREE.Points(particleGeo, particleMat);
-
-    const group = new THREE.Group();
-    group.add(mesh);
-    group.add(ring);
-    group.add(ring2);
-    group.add(particles);
-    scene.add(group);
-
-    // Mouse interaction
-    let mouseX = 0, mouseY = 0;
-    let targetRotX = 0, targetRotY = 0;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    // Animation
-    let time = 0;
-    function animate(){
-      requestAnimationFrame(animate);
-      time += 0.01;
-
-      // Gentle continuous spin + mouse follow
-      targetRotY = mouseX * 0.3 + time * 0.3;
-      targetRotX = mouseY * 0.15 + Math.sin(time * 0.5) * 0.05;
-
-      group.rotation.y += (targetRotY - group.rotation.y) * 0.02;
-      group.rotation.x += (targetRotX - group.rotation.x) * 0.02;
-
-      // Float effect
-      group.position.y = Math.sin(time * 0.8) * 0.05;
-
-      // Rings counter-rotate
-      ring.rotation.z = -time * 0.5;
-      ring2.rotation.z = time * 0.3;
-
-      // Particles drift
-      const pos = particles.geometry.attributes.position;
-      for(let i = 0; i < particleCount; i++){
-        pos.array[i*3+1] += Math.sin(time + i) * 0.001;
-      }
-      pos.needsUpdate = true;
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // Resize
-    window.addEventListener('resize', () => {
-      const nw = container.clientWidth;
-      const nh = container.clientHeight;
-      camera.aspect = nw / nh;
-      camera.updateProjectionMatrix();
-      renderer.setSize(nw, nh);
-    });
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 0.6,
+    roughness: 0.25,
+    side: THREE.DoubleSide
   });
-})();
+  const matEdge = new THREE.MeshStandardMaterial({
+    color: 0xcccccc,
+    metalness: 0.7,
+    roughness: 0.2,
+    side: THREE.DoubleSide
+  });
+
+  const paths = data.paths;
+  for(const path of paths){
+    const shapes = SVGLoader.createShapes(path);
+    for(const shape of shapes){
+      const geo = new THREE.ExtrudeGeometry(shape, {
+        depth: 30,
+        bevelEnabled: true,
+        bevelThickness: 3,
+        bevelSize: 2,
+        bevelOffset: 0,
+        bevelSegments: 3
+      });
+      const mesh = new THREE.Mesh(geo, [mat, matEdge]);
+      group.add(mesh);
+    }
+  }
+
+  // Center and scale the group
+  const box = new THREE.Box3().setFromObject(group);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y);
+  const scale = 3.0 / maxDim;
+
+  group.scale.set(scale, -scale, scale); // flip Y for SVG coords
+  group.position.set(-center.x * scale, center.y * scale, -15 * scale);
+
+  const pivot = new THREE.Group();
+  pivot.add(group);
+  scene.add(pivot);
+
+  // Particle field
+  const pCount = 60;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(pCount * 3);
+  for(let i=0;i<pCount;i++){
+    pPos[i*3]=(Math.random()-.5)*5;
+    pPos[i*3+1]=(Math.random()-.5)*5;
+    pPos[i*3+2]=(Math.random()-.5)*3-1;
+  }
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+  const pMat = new THREE.PointsMaterial({color:0x999999,size:0.02,transparent:true,opacity:0.4});
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  // Mouse
+  let mx=0, my=0;
+  document.addEventListener('mousemove', e=>{
+    mx=(e.clientX/window.innerWidth-.5)*2;
+    my=(e.clientY/window.innerHeight-.5)*2;
+  });
+
+  // Animate
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.008;
+
+    pivot.rotation.y += (mx*0.4 + t*0.3 - pivot.rotation.y)*0.015;
+    pivot.rotation.x += (my*0.15 + Math.sin(t*0.5)*0.05 - pivot.rotation.x)*0.015;
+    pivot.position.y = Math.sin(t*0.7)*0.06;
+
+    const pp = particles.geometry.attributes.position;
+    for(let i=0;i<pCount;i++) pp.array[i*3+1]+=Math.sin(t+i)*0.0008;
+    pp.needsUpdate=true;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{
+    const nw=container.clientWidth, nh=container.clientHeight;
+    camera.aspect=nw/nh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nw,nh);
+  });
+});
 </script>
 
 </body>
