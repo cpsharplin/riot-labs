@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riot Laboratories — Institute · Industry · Innovation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1919e6;
+  --blue-dark:#0f0faa;
+  --blue-light:#2d2dff;
+  --white:#fff;
+  --gray-50:#f8f9fa;
+  --gray-100:#f0f1f3;
+  --gray-400:#8a8f98;
+  --gray-600:#4a4f5a;
+  --gray-900:#111318;
+}
+body{font-family:'Inter',sans-serif;color:var(--gray-900);background:var(--white);}
+
+/* NAV */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 48px;
+  position:absolute;top:0;left:0;right:0;z-index:10;
+}
+.nav-logo img{height:36px;filter:brightness(0) invert(1);}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{color:rgba(255,255,255,.85);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:#fff;}
+
+/* HERO */
+.hero{
+  background:var(--blue);
+  color:var(--white);
+  padding:140px 48px 80px;
+  position:relative;
+  overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:120px;
+  background:linear-gradient(to top,rgba(25,25,230,.95),transparent);
+}
+.hero-content{max-width:700px;position:relative;z-index:2;}
+.hero h1{
+  font-size:clamp(36px,5vw,56px);
+  font-weight:800;
+  line-height:1.08;
+  letter-spacing:-.03em;
+  margin-bottom:20px;
+}
+.hero p{
+  font-size:18px;
+  line-height:1.6;
+  color:rgba(255,255,255,.8);
+  margin-bottom:32px;
+  max-width:540px;
+}
+.hero-cta{
+  display:inline-block;
+  background:var(--white);
+  color:var(--blue);
+  padding:14px 32px;
+  font-size:15px;
+  font-weight:600;
+  border-radius:4px;
+  text-decoration:none;
+  transition:all .2s;
+}
+.hero-cta:hover{background:var(--gray-100);transform:translateY(-1px);}
+.hero-badges{
+  display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;
+}
+.hero-badge{
+  font-size:12px;font-weight:500;
+  color:rgba(255,255,255,.6);
+  padding:6px 14px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+}
+
+/* HEADLINE SECTION */
+.headline-section{
+  padding:80px 48px;
+  text-align:center;
+}
+.headline-section h2{
+  font-size:clamp(28px,3.5vw,42px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  margin-bottom:16px;
+}
+.headline-section p{
+  font-size:17px;
+  line-height:1.7;
+  color:var(--gray-600);
+  max-width:640px;
+  margin:0 auto;
+}
+
+/* COMPANIES GRID */
+.companies-section{
+  padding:0 48px 80px;
+}
+.companies-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  max-width:1100px;
+  margin:0 auto;
+}
+.co-card{
+  border:1px solid var(--gray-100);
+  border-radius:8px;
+  padding:40px 28px 32px;
+  text-align:center;
+  transition:all .25s;
+  display:flex;flex-direction:column;align-items:center;
+}
+.co-card:hover{
+  border-color:var(--blue);
+  box-shadow:0 8px 24px rgba(25,25,230,.08);
+  transform:translateY(-3px);
+}
+.co-card-logo{
+  height:80px;
+  object-fit:contain;
+  margin-bottom:20px;
+}
+.co-card h3{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.co-card .co-type{
+  font-size:13px;
+  color:var(--gray-400);
+  font-weight:500;
+  margin-bottom:12px;
+}
+.co-card p{
+  font-size:14px;
+  line-height:1.6;
+  color:var(--gray-600);
+  margin-bottom:20px;
+}
+.co-card a{
+  font-size:14px;font-weight:600;
+  color:var(--blue);
+  text-decoration:none;
+  transition:color .2s;
+}
+.co-card a:hover{color:var(--blue-dark);}
+
+/* SCROLLING TEXT */
+.capabilities{
+  padding:60px 48px 80px;
+  text-align:center;
+}
+.capabilities .cap-label{
+  font-size:13px;font-weight:600;
+  color:var(--gray-400);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-bottom:28px;
+}
+.cap-list{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.cap-item{
+  font-size:clamp(22px,3vw,36px);
+  font-weight:700;
+  letter-spacing:-.02em;
+  color:var(--gray-900);
+  opacity:.18;
+  transition:opacity .3s;
+}
+.cap-item:nth-child(1){opacity:1;}
+.cap-item:nth-child(2){opacity:.6;}
+.cap-item:nth-child(3){opacity:.35;}
+
+/* STATS */
+.stats-section{
+  background:var(--gray-50);
+  padding:64px 48px;
+}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:32px;
+  max-width:1100px;
+  margin:0 auto;
+  text-align:center;
+}
+.stat-num{
+  font-size:clamp(32px,4vw,48px);
+  font-weight:800;
+  letter-spacing:-.03em;
+  color:var(--blue);
+}
+.stat-label{
+  font-size:13px;
+  color:var(--gray-600);
+  margin-top:4px;
+  line-height:1.4;
+}
+
+/* BLUE CTA */
+.cta-section{
+  background:var(--blue);
+  color:var(--white);
+  padding:80px 48px;
+  text-align:center;
+}
+.cta-section h2{
+  font-size:clamp(24px,3vw,36px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  margin-bottom:12px;
+}
+.cta-section p{
+  font-size:16px;
+  color:rgba(255,255,255,.75);
+  margin-bottom:28px;
+}
+.cta-btn{
+  display:inline-block;
+  background:var(--white);
+  color:var(--blue);
+  padding:14px 32px;
+  font-size:15px;
+  font-weight:600;
+  border-radius:4px;
+  text-decoration:none;
+  transition:all .2s;
+}
+.cta-btn:hover{background:var(--gray-100);}
+
+/* FOOTER */
+footer{
+  padding:40px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--gray-100);
+}
+.footer-logo img{height:28px;}
+.footer-text{font-size:13px;color:var(--gray-400);}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav,.hero,.headline-section,.companies-section,.capabilities,.stats-section,.cta-section,footer{
+    padding-left:20px;padding-right:20px;
+  }
+  .companies-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><img src="riot-logo.jpg" alt="Riot Laboratories"></div>
+  <div class="nav-links">
+    <a href="https://droneinstitute.ai" target="_blank">Drone Institute</a>
+    <a href="https://dmrdrones.com" target="_blank">DMR</a>
+    <a href="https://pantarheiproductions.com" target="_blank">Panta Rhei</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <h1>Innovation built in Louisiana.</h1>
+    <p>Riot Laboratories is the parent organization behind a portfolio of technology-driven companies in aerial intelligence, design &amp; fabrication, and agricultural innovation.</p>
+    <a class="hero-cta" href="#companies">Explore Our Companies</a>
+    <div class="hero-badges">
+      <span class="hero-badge">Lafayette, LA</span>
+      <span class="hero-badge">105 Dorset Avenue</span>
+      <span class="hero-badge">Est. 2020</span>
+    </div>
+  </div>
+</div>
+
+<!-- HEADLINE -->
+<div class="headline-section">
+  <h2>Building the companies that build the future.</h2>
+  <p>From drone-derived intelligence to precision fabrication, our portfolio companies solve real problems for enterprise clients across North America.</p>
+</div>
+
+<!-- COMPANIES -->
+<div class="companies-section" id="companies">
+  <div class="companies-grid">
+
+    <div class="co-card">
+      <img class="co-card-logo" src="di-logo.jpg" alt="Drone Institute">
+      <h3>Drone Institute</h3>
+      <div class="co-type">Aerial Data · NDT · FAA Certification</div>
+      <p>Full-stack aerial intelligence platform converting raw drone data into actionable insights for enterprise clients across 28+ states.</p>
+      <a href="https://droneinstitute.ai" target="_blank">Visit droneinstitute.ai →</a>
+    </div>
+
+    <div class="co-card">
+      <img class="co-card-logo" src="dmr-logo.jpg" alt="DMR">
+      <h3>DMR</h3>
+      <div class="co-type">Industrial Drones · Agricultural Intelligence</div>
+      <p>Industrial drone solutions and precision agricultural intelligence at scale — from multispectral crop analysis to commercial operations.</p>
+      <a href="https://dmrdrones.com" target="_blank">Visit dmrdrones.com →</a>
+    </div>
+
+    <div class="co-card">
+      <img class="co-card-logo" src="pr-logo.jpg" alt="Panta Rhei Productions">
+      <h3>Panta Rhei Productions</h3>
+      <div class="co-type">Design · Fabrication · Brand Environments</div>
+      <p>2D/3D design, fabrication, and prototyping — from trade show exhibits to lobby environments, bringing brands to life physically.</p>
+      <a href="https://pantarheiproductions.com" target="_blank">Visit pantarheiproductions.com →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<div class="capabilities">
+  <div class="cap-label">One portfolio, endless possibilities</div>
+  <div class="cap-list">
+    <div class="cap-item">aerial inspection</div>
+    <div class="cap-item">precision agriculture</div>
+    <div class="cap-item">FAA certification</div>
+    <div class="cap-item">brand fabrication</div>
+    <div class="cap-item">+ more</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-grid">
+    <div><div class="stat-num">750+</div><div class="stat-label">Certified Pilots</div></div>
+    <div><div class="stat-num">28+</div><div class="stat-label">States Served</div></div>
+    <div><div class="stat-num">3</div><div class="stat-label">Operating Companies</div></div>
+    <div><div class="stat-num">350+</div><div class="stat-label">Projects Delivered</div></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Ready to work with us?</h2>
+  <p>Whether you need aerial data, agricultural intelligence, or physical brand environments — we've got you covered.</p>
+  <a class="cta-btn" href="mailto:info@riotlaboratories.com">Get in Touch</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><img src="riot-logo.jpg" alt="Riot Laboratories"></div>
+  <div class="footer-text">Riot Laboratories, LLC · 105 Dorset Avenue · Lafayette, Louisiana · © 2026</div>
+</footer>
+
+</body>
+</html>
