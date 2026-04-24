@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Count Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+body{margin:0;padding:0;font-family:Arial,sans-serif}
+#map{width:100%;height:100vh}
+.info{padding:12px 16px;background:rgba(255,255,255,.95);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px;line-height:1.8;max-width:280px}
+.info h3{margin:0 0 8px;font-size:15px;border-bottom:2px solid #333;padding-bottom:6px}
+.row{display:flex;justify-content:space-between;padding:2px 0}
+.val{font-weight:700}
+.total{border-top:2px solid #333;margin-top:8px;padding-top:8px;font-size:15px;font-weight:700}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.note{color:#999;font-size:11px;margin-top:8px;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+var map = L.map('map').setView([40.055, -83.15], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'OpenStreetMap',maxZoom:19
+}).addTo(map);
+
+var areas = [{"name": "Area 1", "buildings": 1417, "sq_miles": 1.55, "coords": [[-83.18527, 40.08113], [-83.18055, 40.07692], [-83.16966, 40.07739], [-83.16438, 40.07713], [-83.15787, 40.07756], [-83.15872, 40.09252], [-83.16581, 40.09201], [-83.1684, 40.09194], [-83.16871, 40.09463], [-83.17627, 40.0943], [-83.17854, 40.09364], [-83.17912, 40.09258], [-83.18676, 40.09187], [-83.18527, 40.08113]], "center_lat": 40.0858, "center_lon": -83.1723, "color": "#e74c3c", "residential": 921}, {"name": "Area 2", "buildings": 523, "sq_miles": 0.43, "coords": [[-83.11225, 40.09947], [-83.12057, 40.09895], [-83.12086, 40.09689], [-83.12123, 40.0948], [-83.12439, 40.09228], [-83.12296, 40.08835], [-83.11418, 40.08779], [-83.11104, 40.09283], [-83.11085, 40.09526], [-83.11225, 40.09947]], "center_lat": 40.0939, "center_lon": -83.1176, "color": "#3498db", "residential": 339}, {"name": "Area 3", "buildings": 197, "sq_miles": 0.16, "coords": [[-83.11902, 40.08581], [-83.11866, 40.08289], [-83.11957, 40.0828], [-83.11826, 40.07828], [-83.11217, 40.07912], [-83.11434, 40.08635], [-83.11902, 40.08581]], "center_lat": 40.0823, "center_lon": -83.1156, "color": "#2ecc71", "residential": 128}, {"name": "AOI 15", "buildings": 203, "sq_miles": 0.1, "coords": [[-83.18208, 40.01582], [-83.1817, 40.0129], [-83.17419, 40.01375], [-83.17358, 40.01765], [-83.17742, 40.01782], [-83.17768, 40.01651], [-83.18208, 40.01582]], "center_lat": 40.0154, "center_lon": -83.1778, "color": "#f39c12", "residential": 131}];
+var bounds = L.latLngBounds();
+areas.forEach(function(a){
+  var ll = a.coords.map(function(c){ return [c[1], c[0]]; });
+  L.polygon(ll, {color:a.color, weight:3, fillColor:a.color, fillOpacity:0.2}).addTo(map);
+  L.marker([a.center_lat, a.center_lon]).addTo(map)
+    .bindPopup('<b>'+a.name+'</b><br>\U0001f3e0 Est. Residential: <b>'+a.residential.toLocaleString()+'</b><br>Total Buildings: '+a.buildings.toLocaleString()+'<br>Area: '+a.sq_miles+' sq mi')
+    .bindTooltip(a.name+': '+a.residential+' homes', {permanent:true, direction:'top', className:'label'});
+  ll.forEach(function(l){ bounds.extend(l); });
+});
+map.fitBounds(bounds.pad(0.15));
+
+var info = L.control({position:'topright'});
+info.onAdd = function(){
+  var d = L.DomUtil.create('div','info');
+  var h = '<h3>\U0001f3e0 Estimated Residential Houses</h3>';
+  areas.forEach(function(a){
+    h += '<div class="row"><span><span class="dot" style="background:'+a.color+'"></span>'+a.name+'</span><span class="val">'+a.residential.toLocaleString()+'</span></div>';
+  });
+  h += '<div class="total"><div class="row"><span>TOTAL</span><span>1,519</span></div></div>';
+  h += '<div class="note">Total structures: 2,340<br>Source: Microsoft Building Footprints<br>Residential est. ~65% of total</div>';
+  d.innerHTML = h;
+  return d;
+};
+info.addTo(map);
+</script>
+</body>
+</html>
