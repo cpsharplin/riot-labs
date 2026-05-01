@@ -38,9 +38,52 @@ body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 }
 .stats-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
 .stats-num { font-size: 28px; font-weight: bold; color: #1a1a3e; }
+#search-container {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+#search-box {
+    width: 350px;
+    padding: 12px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    outline: none;
+    color: #1a1a3e;
+}
+#search-box::placeholder { color: #999; }
+#search-results {
+    background: white;
+    border-radius: 12px;
+    margin-top: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    display: none;
+}
+.search-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+.search-item:hover { background: #f0f0f5; }
+.search-item:last-child { border-bottom: none; }
+.search-item .s-name { font-weight: bold; color: #1a1a3e; }
+.search-item .s-cat { color: #888; font-size: 11px; }
+.search-count { text-align: center; padding: 6px; color: #888; font-size: 11px; }
 </style>
 </head>
 <body>
+<div id="search-container">
+    <input type="text" id="search-box" placeholder="🔍 Search missions, clients, locations..." autocomplete="off">
+    <div id="search-results"></div>
+</div>
 <div id="map"></div>
 <script>
 var map = L.map('map').setView([35.5, -98], 5);
@@ -128,6 +171,76 @@ stats.onAdd = function() {
 };
 stats.addTo(map);
 
+// Search functionality
+var searchBox = document.getElementById('search-box');
+var searchResults = document.getElementById('search-results');
+var allMarkers = [];
+
+// Store all markers with their data for search
+locations.forEach(function(loc) {
+    allMarkers.push(loc);
+});
+
+searchBox.addEventListener('input', function() {
+    var query = this.value.toLowerCase().trim();
+    searchResults.innerHTML = '';
+    
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    var matches = allMarkers.filter(function(loc) {
+        return loc.name.toLowerCase().includes(query) || 
+               loc.category.toLowerCase().includes(query);
+    });
+    
+    if (matches.length === 0) {
+        searchResults.innerHTML = '<div class="search-count">No results found</div>';
+        searchResults.style.display = 'block';
+        return;
+    }
+    
+    var shown = matches.slice(0, 20);
+    shown.forEach(function(loc) {
+        var div = document.createElement('div');
+        div.className = 'search-item';
+        div.innerHTML = '<div class="s-name">' + loc.name + '</div>' +
+            '<div class="s-cat">' + loc.category + ' · ' + loc.activity + ' events · ' + loc.lat.toFixed(3) + ', ' + loc.lng.toFixed(3) + '</div>';
+        div.addEventListener('click', function() {
+            map.setView([loc.lat, loc.lng], 16);
+            searchResults.style.display = 'none';
+            searchBox.value = loc.name;
+            // Open popup
+            L.popup()
+                .setLatLng([loc.lat, loc.lng])
+                .setContent('<div style="min-width:200px"><b style="font-size:14px">' + loc.name + '</b><br><span style="color:' + (colors[loc.category]||'#457b9d') + ';font-weight:bold">' + loc.category + '</span><br>Activity: ' + loc.activity + ' events<br>Coords: ' + loc.lat.toFixed(4) + ', ' + loc.lng.toFixed(4) + '</div>')
+                .openOn(map);
+        });
+        searchResults.appendChild(div);
+    });
+    
+    if (matches.length > 20) {
+        searchResults.innerHTML += '<div class="search-count">' + (matches.length - 20) + ' more results...</div>';
+    }
+    searchResults.innerHTML += '<div class="search-count">' + matches.length + ' of ' + allMarkers.length + ' missions</div>';
+    searchResults.style.display = 'block';
+});
+
+// Close results when clicking outside
+document.addEventListener('click', function(e) {
+    if (!document.getElementById('search-container').contains(e.target)) {
+        searchResults.style.display = 'none';
+    }
+});
+
+// ESC to clear
+searchBox.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        this.value = '';
+        searchResults.style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>
